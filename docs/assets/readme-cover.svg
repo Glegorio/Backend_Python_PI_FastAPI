@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="520" viewBox="0 0 1440 520" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Valentes de Davi — Backend</title>
+  <desc id="description">Capa em verde profundo e marfim, com o nome do projeto e um desenho geométrico de um campo de futebol à direita. Futebol, comunidade e tecnologia.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#F2EEDF" stroke-opacity=".035"/>
+    </pattern>
+    <clipPath id="bounds"><rect width="1440" height="520" rx="12"/></clipPath>
+  </defs>
+  <g clip-path="url(#bounds)">
+    <path fill="#102C25" d="M0 0h1440v520H0z"/>
+    <path fill="url(#grid)" d="M0 0h1440v520H0z"/>
+    <path fill="#C8DB95" d="M48 48h8v22h-8z"/>
+    <g font-family="'Courier New', monospace" font-size="14" letter-spacing="3" fill="#C8DB95">
+      <text x="72" y="65">PROJETO INTEGRADOR</text>
+      <text x="1390" y="65" text-anchor="end">BACKEND / 01</text>
+    </g>
+    <path d="M48 94h1344" stroke="#F2EEDF" stroke-opacity=".2"/>
+    <g stroke="#C8DB95" stroke-width="1.5">
+      <rect x="960" y="130" width="432" height="272" rx="2" stroke-opacity=".5"/>
+      <path d="M1176 130v272" stroke-opacity=".5"/>
+      <circle cx="1176" cy="266" r="65" stroke-opacity=".5"/>
+      <path d="M960 186h70v160h-70m432-160h-70v160h70M960 228h26v76h-26m432-76h-26v76h26" stroke-opacity=".5"/>
+      <circle cx="1176" cy="266" r="4" fill="#C8DB95" stroke="none"/>
+      <path d="m1082 335 53-36 90 18 73-86" stroke-dasharray="5 7" stroke-opacity=".7"/>
+      <path d="m1284 234 14-3-1 15" stroke-opacity=".7"/>
+      <circle cx="1082" cy="335" r="7" fill="#102C25"/>
+      <circle cx="1135" cy="299" r="7" fill="#102C25"/>
+      <circle cx="1225" cy="317" r="7" fill="#C8DB95"/>
+    </g>
+    <path fill="#102C25" d="M48 122h868v280H48z"/>
+    <g fill="#F2EEDF" font-family="Georgia, 'Times New Roman', serif" font-size="92" letter-spacing="-3">
+      <text x="44" y="222">Valentes</text>
+      <text x="44" y="320">de Davi<tspan fill="#C8DB95">.</tspan></text>
+    </g>
+    <text x="50" y="374" fill="#D0D8CC" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing=".3">Futebol, comunidade e tecnologia.</text>
+    <path d="M48 436h1344" stroke="#F2EEDF" stroke-opacity=".2"/>
+    <g font-family="'Courier New', monospace" font-size="13" letter-spacing="2">
+      <text x="48" y="478" fill="#C8DB95">API DE GESTÃO</text>
+      <text x="1392" y="478" fill="#D0D8CC" text-anchor="end">PYTHON / FASTAPI / MYSQL</text>
+    </g>
+  </g>
+</svg>

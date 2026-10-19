@@ -1,0 +1,43 @@
+# Credenciais e configuracoes locais
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Ambientes virtuais Python
+/venv/
+/.venv/
+/env/
+/.env/
+
+# Bytecode e caches Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Cobertura de testes
+.coverage
+.coverage.*
+/htmlcov/
+/coverage.xml
+
+# Artefatos de distribuicao Python
+/build/
+/dist/
+*.egg-info/
+
+# Logs de execucao
+*.log
+
+# Configuracoes locais de editores
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
