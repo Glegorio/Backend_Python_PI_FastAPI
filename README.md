@@ -188,6 +188,20 @@ O healthcheck informa o estado da aplicação, o nome do projeto, a versão e o 
 
 ## 04 / Contrato da API
 
+### Documentação interativa
+
+A interface Swagger UI, disponível em `/docs` com a API em execução, reúne as operações do módulo de assistidos e permite consultar os contratos e enviar requisições.
+
+<p align="center">
+  <a href="docs/assets/image.png">
+    <img src="docs/assets/image.png" alt="Swagger UI da ONG Valentes de Davi com os endpoints de cadastro, listagem, consulta, atualização e desativação de assistidos." width="100%">
+  </a>
+  <br>
+  <sub>Visão do módulo de assistidos em /docs. Clique na imagem para ampliar.</sub>
+</p>
+
+### Endpoints de assistidos
+
 Os caminhos abaixo consideram o prefixo padrão `/api/v1`.
 
 | Método | Caminho declarado | Operação | Sucesso previsto |
