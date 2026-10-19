@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.modules.assistidos.router import router as assistidos_router
+from app.modules.voluntarios.router import router as voluntarios_router
 
 # Inicialização da aplicação FastAPI
 app = FastAPI(
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Registro das rotas dos módulos
 app.include_router(assistidos_router, prefix=settings.API_V1_STR)
+app.include_router(voluntarios_router, prefix=settings.API_V1_STR)
 
 @app.get("/", tags=["Healthcheck"])
 async def root():
