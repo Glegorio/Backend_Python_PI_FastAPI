@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="164" viewBox="0 0 1200 164" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">04 / Ambiente local</title>
+  <desc id="desc">Faixa editorial com a identidade visual do projeto Valentes de Davi.</desc>
+  <defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#F2EEDF" stroke-opacity=".045"/></pattern></defs>
+  <rect width="1200" height="164" rx="10" fill="#102C25"/>
+  <rect width="1200" height="164" rx="10" fill="url(#grid)"/>
+  <path d="M32 26h5v15h-5z" fill="#C8DB95"/>
+  <text x="49" y="38" fill="#C8DB95" font-family="'Courier New', monospace" font-size="12" letter-spacing="2">VALENTES DE DAVI / DOCUMENTACAO</text>
+  <path d="M32 52h1136" stroke="#F2EEDF" stroke-opacity=".2"/>
+  <text x="32" y="112" fill="#C8DB95" font-family="'Courier New', monospace" font-size="30">04</text>
+  <text x="108" y="116" fill="#F2EEDF" font-family="Georgia, 'Times New Roman', serif" font-size="42" letter-spacing="-.7">Ambiente local</text>
+  <g stroke="#C8DB95" stroke-opacity=".35" stroke-width="1.2">
+    <path d="M1030 68h138v80h-138zM1099 68v80"/>
+    <circle cx="1099" cy="108.0" r="25"/>
+  </g>
+  <circle cx="1099" cy="108.0" r="2.5" fill="#C8DB95"/>
+</svg>

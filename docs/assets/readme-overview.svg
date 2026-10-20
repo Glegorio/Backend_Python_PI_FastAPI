@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="210" viewBox="0 0 1200 210" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">O sistema em perspectiva</title>
+  <desc id="desc">3 modules: assistidos, voluntarios e aulas. 15 business operations. 4 MySQL tables with asynchronous ORM.</desc>
+  <rect x="1" y="1" width="1198" height="208" rx="10" fill="#102C25" stroke="#385E45"/>
+  <path d="M400 28v154M800 28v154" stroke="#F2EEDF" stroke-opacity=".2"/>
+  <g font-family="'Courier New', monospace" font-size="13" letter-spacing="2" fill="#C8DB95">
+    <text x="32" y="40">DOMÍNIOS NA API</text><text x="432" y="40">OPERAÇÕES DE NEGÓCIO</text><text x="832" y="40">TABELAS NO BANCO</text>
+  </g>
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="64" fill="#F2EEDF">
+    <text x="28" y="119">03<tspan fill="#C8DB95">.</tspan></text>
+    <text x="428" y="119">15<tspan fill="#C8DB95">.</tspan></text>
+    <text x="828" y="119">04<tspan fill="#C8DB95">.</tspan></text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#D0D8CC">
+    <text x="32" y="158">Assistidos / Voluntários / Aulas</text>
+    <text x="432" y="158">Cadastro, consulta e manutenção</text>
+    <text x="832" y="158">MySQL / ORM assíncrono</text>
+  </g>
+  <path d="M32 182h1136" stroke="#C8DB95" stroke-opacity=".3"/>
+</svg>
