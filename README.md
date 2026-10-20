@@ -10,7 +10,7 @@
 
 <p align="center">
   A base de dados por trás de um projeto que começa em campo.<br>
-  API da ONG Valentes de Davi para a gestão de assistidos, voluntários e aulas.
+  API da ONG Valentes de Davi para a gestão de assistidos, voluntários, aulas e presenças.
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/readme-overview.svg" alt="03 módulos: assistidos, voluntários e aulas. 15 operações de negócio. 04 tabelas MySQL com ORM assíncrono." width="100%">
+  <img src="docs/assets/readme-overview.svg" alt="04 módulos: assistidos, voluntários, aulas e chamadas. 18 operações de negócio. 04 tabelas MySQL com ORM assíncrono." width="100%">
 </p>
 
 ### Guia de leitura
@@ -48,9 +48,9 @@
 
 > **Futebol, comunidade e tecnologia.** Uma base para organizar quem participa, quem ensina e o que acontece em campo.
 
-Este backend oferece a base para organizar os dados dos assistidos (alunos), dos voluntários (equipe e treinadores) e das aulas da ONG Valentes de Davi. A aplicação utiliza FastAPI, validação com Pydantic e acesso assíncrono ao MySQL por meio do SQLAlchemy e do driver aiomysql.
+Este backend oferece a base para organizar os dados dos assistidos (alunos), dos voluntários (equipe e treinadores), das aulas e das presenças da ONG Valentes de Davi. A aplicação utiliza FastAPI, validação com Pydantic e acesso assíncrono ao MySQL por meio do SQLAlchemy e do driver aiomysql.
 
-O projeto está em desenvolvimento. Assistidos, voluntários e aulas possuem rotas, serviços, schemas e modelos ORM próprios, registrados na aplicação. O controle de chamadas já está modelado no banco e ainda não possui módulo de API.
+O projeto está em desenvolvimento. Assistidos, voluntários, aulas e chamadas possuem rotas, serviços, schemas e modelos ORM próprios, registrados na aplicação. O fluxo atual permite cadastrar alunos e equipe, agendar atividades e registrar ou atualizar a presença dos alunos em cada aula.
 
 ### O que já existe
 
@@ -67,7 +67,9 @@ O projeto está em desenvolvimento. Assistidos, voluntários e aulas possuem rot
 | Listagem e consulta de aulas | Paginação e dados do voluntário na resposta; listagem por data/hora decrescente |
 | Atualização e exclusão de aulas | Atualização parcial e exclusão definitiva do registro |
 | Documentação da API | Swagger UI, ReDoc e esquema OpenAPI |
-| Chamadas / presença | Tabela e relacionamentos definidos em `Schema.sql`; sem módulo de API |
+| Chamadas em lote | Registra ou atualiza a presença dos alunos por aula e retorna a chamada completa |
+| Consulta de chamadas | Retorna os registros de uma aula, com dados do aluno e da aula |
+| Atualização individual de presença | Permite alterar `presente` e `observacao` pelo ID da chamada |
 | Autenticação e autorização | Ainda não implementadas |
 | Testes automatizados e migrações versionadas | Ainda não incluídos |
 
@@ -112,18 +114,23 @@ As dependências e suas versões mínimas estão em [`requirements.txt`](require
 │       │   ├── schemas.py       # Contratos e validação de e-mail
 │       │   ├── service.py       # Operações de persistência
 │       │   └── router.py        # Endpoints de voluntários
-│       └── aulas/
-│           ├── models.py        # Aula e vínculo com voluntário
-│           ├── schemas.py       # Contratos e resposta com responsável
-│           ├── service.py       # Agendamento, consultas e exclusão
-│           └── router.py        # Endpoints de aulas/treinos
-├── docs/assets/                # Capa e captura da documentação
+│       ├── aulas/
+│       │   ├── models.py        # Aula e vínculo com voluntário
+│       │   ├── schemas.py       # Contratos e resposta com responsável
+│       │   ├── service.py       # Agendamento, consultas e exclusão
+│       │   └── router.py        # Endpoints de aulas/treinos
+│       └── chamadas/
+│           ├── models.py        # Presença e vínculos com aula/aluno
+│           ├── schemas.py       # Lote, atualização e resposta
+│           ├── service.py       # Registro e consulta de presenças
+│           └── router.py        # Endpoints de chamadas
+├── docs/assets/                # Recursos visuais da documentação
 ├── requirements.txt
 ├── Schema.sql                  # Criação do banco, tabelas e índices
 └── README.md
 ```
 
-Os três módulos seguem a mesma separação entre interface HTTP, operações de persistência e contratos de dados:
+Os quatro módulos seguem a mesma separação entre interface HTTP, operações de persistência e contratos de dados:
 
 ```text
 REQUISIÇÃO HTTP
@@ -141,12 +148,14 @@ REQUISIÇÃO HTTP
 
 | Decisão | Aplicação no projeto |
 | --- | --- |
-| Organização por domínio | Assistidos, voluntários e aulas agrupam suas próprias rotas, schemas, modelo e serviço. |
+| Organização por domínio | Assistidos, voluntários, aulas e chamadas agrupam suas próprias rotas, schemas, modelo e serviço. |
 | Persistência assíncrona | Serviços usam `AsyncSession` e operações com `await`. |
 | Atualização parcial | `exclude_unset=True` mantém os campos que não foram enviados no `PATCH`. |
 | Preservação de cadastros | Assistidos e voluntários usam exclusão lógica, alterando `ativo` para `false`. |
 | Responsável pela aula | O serviço de aulas consulta o serviço de voluntários antes de cadastrar ou trocar o responsável. |
 | Carregamento de relacionamentos | Consultas de aulas carregam o voluntário com `joinedload` para compor a resposta. |
+| Registro de presença | O serviço procura o par aula/aluno e atualiza o registro existente ou cria um novo; o lote é confirmado com um único `commit`. |
+| Consulta de chamadas | Carrega os relacionamentos de aluno e aula com `joinedload`; a aula inclui seu voluntário responsável. |
 
 ---
 
@@ -154,7 +163,7 @@ REQUISIÇÃO HTTP
 
 ## <img src="docs/assets/readme-section-03.svg" alt="03 / Modelo de dados" width="100%">
 
-O banco `ong_futebol` reúne quatro entidades. A relação entre aulas e voluntários já é utilizada pela API; as relações de presença estão definidas no [esquema SQL](Schema.sql).
+O banco `ong_futebol` reúne quatro entidades, todas utilizadas pelos módulos da API. Os vínculos e as regras de integridade estão definidos no [esquema SQL](Schema.sql) e nos modelos ORM.
 
 ```mermaid
 flowchart LR
@@ -162,12 +171,10 @@ flowchart LR
     A -->|"1 : N"| C["CHAMADAS<br/>Presença por aula"]
     S["ASSISTIDOS<br/>Alunos e responsáveis"] -->|"1 : N"| C
     classDef implemented fill:#102C25,stroke:#C8DB95,color:#F2EEDF,stroke-width:2px;
-    classDef planned fill:#F2EEDF,stroke:#102C25,color:#102C25,stroke-dasharray:5 5;
-    class V,A,S implemented;
-    class C planned;
+    class V,A,S,C implemented;
 ```
 
-<p align="center"><sub>Verde: entidades com módulo de API · Marfim: entidade definida no banco</sub></p>
+<p align="center"><sub>Quatro entidades integradas: equipe, atividades, alunos e presença.</sub></p>
 
 | Entidade | Identificação e vínculos | Exclusão |
 | :--- | :--- | :--- |
@@ -266,26 +273,11 @@ O healthcheck informa o estado da aplicação, o nome do projeto, a versão e o 
 
 **Base das rotas:** `/api/v1` &nbsp; · &nbsp; **Formato:** JSON &nbsp; · &nbsp; **Contratos:** OpenAPI
 
-[Assistidos](#api-assistidos) &nbsp; / &nbsp; [Voluntários](#api-voluntarios) &nbsp; / &nbsp; [Aulas](#api-aulas) &nbsp; / &nbsp; [Respostas](#respostas)
+[Assistidos](#api-assistidos) &nbsp; / &nbsp; [Voluntários](#api-voluntarios) &nbsp; / &nbsp; [Aulas](#api-aulas) &nbsp; / &nbsp; [Chamadas](#api-chamadas) &nbsp; / &nbsp; [Respostas](#respostas)
 
 ### Documentação interativa
 
-A interface Swagger UI, disponível em `/docs` com a API em execução, reúne assistidos, voluntários e aulas e permite consultar os contratos e enviar requisições.
-
-<details>
-<summary><strong>Ver capturas da documentação — assistidos e voluntários</strong></summary>
-
-<p align="center">
-  <a href="docs/assets/image.png">
-    <img src="docs/assets/image.png" alt="Swagger UI da ONG Valentes de Davi com os endpoints de cadastro, listagem, consulta, atualização e desativação de assistidos." width="100%">
-  </a>
-  <br>
-  <a href="docs/assets/image2.png">
-    <img src="docs/assets/image2.png" alt="Swagger UI da ONG Valentes de Davi com os endpoints de cadastro, listagem, consulta, atualização e desativação de voluntários." width="100%">
-  </a>
-</p>
-
-</details>
+A interface Swagger UI, disponível em `/docs` com a API em execução, reúne assistidos, voluntários, aulas e chamadas e permite consultar os contratos e enviar requisições.
 
 <a id="api-assistidos"></a>
 
@@ -406,9 +398,66 @@ A resposta acrescenta `id`, `criado_em`, `atualizado_em` e o objeto `voluntario`
 
 ---
 
+<a id="api-chamadas"></a>
+
+### <img src="docs/assets/readme-section-05-4.svg" alt="05.4 / Chamadas e presenças" width="100%">
+
+<sub>ACOMPANHAMENTO DAS AULAS &nbsp; / &nbsp; PRESENÇA E OBSERVAÇÕES</sub>
+
+| Método | Caminho declarado | Operação | Sucesso previsto |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/chamadas/lote` | Registrar ou atualizar presenças em lote | `200` |
+| `GET` | `/api/v1/chamadas/aula/{aula_id}` | Consultar os registros de uma aula | `200` |
+| `PATCH` | `/api/v1/chamadas/{chamada_id}` | Atualizar uma presença individual | `200` |
+
+**Fluxo de uso:** cadastre os assistidos e o voluntário, agende a aula e utilize os IDs retornados para registrar a chamada. Os IDs abaixo são ilustrativos e devem corresponder a registros existentes.
+
+```json
+{
+  "aula_id": 1,
+  "presencas": [
+    {
+      "assistido_id": 1,
+      "presente": true,
+      "observacao": null
+    },
+    {
+      "assistido_id": 2,
+      "presente": false,
+      "observacao": "Ausência justificada."
+    }
+  ]
+}
+```
+
+| Campo | Contrato do lote |
+| :--- | :--- |
+| `aula_id` | Obrigatório; ID da aula |
+| `presencas` | Obrigatório; lista de registros de presença |
+| `presencas[].assistido_id` | Obrigatório; ID do aluno |
+| `presencas[].presente` | Obrigatório; `true` para presente e `false` para ausente |
+| `presencas[].observacao` | Opcional; até 255 caracteres ou `null` |
+
+Para cada item, o serviço procura o par `aula_id` + `assistido_id`: se já existir, substitui a presença e a observação; caso contrário, cria o registro. No lote, omitir `observacao` define seu valor como `null`, inclusive ao atualizar um registro existente. Alunos omitidos do lote mantêm seus registros anteriores.
+
+A resposta do lote e da consulta por aula é uma lista com `id`, `aula_id`, `assistido_id`, `presente`, `observacao`, `registrado_em` e os objetos relacionados `aula` e `assistido`. O objeto da aula também inclui os dados do voluntário. A consulta não possui paginação e retorna `[]` quando não encontra registros, inclusive para um ID de aula inexistente.
+
+Para corrigir uma presença, use o `id` do registro de chamada no `PATCH`. Somente os campos enviados são atualizados:
+
+```json
+{
+  "presente": true,
+  "observacao": "Presença confirmada após o início da aula."
+}
+```
+
+O módulo não expõe exclusão de chamada. Os vínculos com aula e assistido são garantidos por chaves estrangeiras no banco; o serviço de lote não consulta previamente a existência ou o estado ativo dos registros relacionados.
+
+---
+
 <a id="respostas"></a>
 
-### <img src="docs/assets/readme-section-05-4.svg" alt="05.4 / Respostas e regras de operação" width="100%">
+### <img src="docs/assets/readme-section-05-5.svg" alt="05.5 / Respostas e regras de operação" width="100%">
 
 | Situação | Comportamento atual |
 | --- | --- |
@@ -421,6 +470,9 @@ A resposta acrescenta `id`, `criado_em`, `atualizado_em` e o objeto `voluntario`
 | `PATCH` | Atualiza somente os campos enviados; assistidos e voluntários aceitam alterar `ativo` |
 | `DELETE` de assistidos e voluntários | Define `ativo=false`, preserva os dados e retorna `204` sem corpo |
 | `DELETE` de aulas | Remove o registro definitivamente e retorna `204` sem corpo |
+| Registro de chamada em lote | Resposta `200` com todos os registros da aula, inclusive os que não foram enviados no lote |
+| Consulta de aula sem registros de chamada | Resposta `200` com lista vazia |
+| `PATCH` de chamada inexistente | Resposta `404` |
 
 A verificação explícita de duplicidade ocorre no cadastro. Os serviços de atualização não repetem essa consulta nem tratam conflitos de unicidade como uma resposta HTTP específica. Os parâmetros `skip` e `limit` também não possuem limites explícitos de validação nas rotas atuais.
 
@@ -439,7 +491,7 @@ A verificação explícita de duplicidade ocorre no cadastro. Os serviços de at
 
 Backend for the Valentes de Davi football NGO management system, developed as an academic integration project. It uses FastAPI, Pydantic validation and asynchronous MySQL access through SQLAlchemy and aiomysql.
 
-The project is in development. Students (**assistidos**), volunteers (**voluntarios**) and classes/training sessions (**aulas**) have API modules registered in the application, each with its own routes, services, schemas and ORM model. There are 15 business operations across these three modules. Attendance (**chamadas**) is defined in the database schema and does not yet have an API module.
+The project is in development. Students (**assistidos**), volunteers (**voluntarios**), classes/training sessions (**aulas**) and attendance (**chamadas**) have API modules registered in the application, each with its own routes, services, schemas and ORM model. There are 18 business operations across these four modules, covering registration, scheduling and attendance recording.
 
 ### Current status
 
@@ -456,7 +508,9 @@ The project is in development. Students (**assistidos**), volunteers (**voluntar
 | Class listing and lookup | Paginated listing ordered by descending date/time; responses include volunteer data |
 | Class update and deletion | Partial updates and permanent deletion |
 | API documentation | Swagger UI, ReDoc and OpenAPI schema |
-| Attendance | Table and relationships in `Schema.sql`; no API module yet |
+| Batch attendance | Creates or updates attendance by class/student pair and returns all attendance records for the class |
+| Attendance lookup | Returns a class's records with nested student and class data |
+| Individual attendance update | Updates `presente` and `observacao` by attendance record ID |
 | Authentication and authorization | Not implemented yet |
 | Automated tests and versioned migrations | Not included yet |
 
@@ -475,7 +529,7 @@ The project is in development. Students (**assistidos**), volunteers (**voluntar
 
 Dependencies and minimum versions are listed in [`requirements.txt`](requirements.txt).
 
-The application follows **routes → services → models/database**, with Pydantic schemas for request and response data. See the [project structure](#estrutura) above: `app/main.py` registers all three routers, `app/core/` holds configuration and database access, and `app/modules/` contains `assistidos/`, `voluntarios/` and `aulas/`. All use asynchronous sessions and partial updates with `exclude_unset=True`. Students and volunteers use soft deletion; classes use permanent deletion. Class queries load the volunteer relationship with `joinedload`.
+The application follows **routes → services → models/database**, with Pydantic schemas for request and response data. See the [project structure](#estrutura) above: `app/main.py` registers all four routers, `app/core/` holds configuration and database access, and `app/modules/` contains `assistidos/`, `voluntarios/`, `aulas/` and `chamadas/`. All use asynchronous sessions and partial updates with `exclude_unset=True`. Students and volunteers use soft deletion; classes use permanent deletion. Class queries load the volunteer relationship with `joinedload`; attendance queries also load student and class data. Batch attendance uses one commit after processing the entries.
 
 ### Data model
 
@@ -649,6 +703,43 @@ Title (3–100 characters), date/time, location (2–150 characters) and volunte
 
 Responses also include `id`, `criado_em`, `atualizado_em` and a nested `voluntario` object with the responsible volunteer's data. Class deletion is permanent; the supplied SQL schema cascades deletion to related attendance records.
 
+### Attendance endpoints
+
+| Method | Declared path | Operation | Intended success status |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/chamadas/lote` | Create or update attendance in a batch | `200` |
+| `GET` | `/api/v1/chamadas/aula/{aula_id}` | Fetch attendance records for a class | `200` |
+| `PATCH` | `/api/v1/chamadas/{chamada_id}` | Update an individual attendance record | `200` |
+
+Register students and a volunteer, schedule the class, then use their existing IDs:
+
+```json
+{
+  "aula_id": 1,
+  "presencas": [
+    {"assistido_id": 1, "presente": true, "observacao": null},
+    {"assistido_id": 2, "presente": false, "observacao": "Excused absence."}
+  ]
+}
+```
+
+`aula_id` and `presencas` are required. Each entry requires `assistido_id` and the boolean `presente`; `observacao` is optional and accepts up to 255 characters or `null`.
+
+For each entry, the service finds the class/student pair and either updates it or creates a new record. Existing entries have both presence and observation replaced; omitting the observation in the batch sets it to `null`. Students omitted from the batch keep their previous records.
+
+Batch and lookup responses contain all attendance records for the class, with `id`, `aula_id`, `assistido_id`, `presente`, `observacao`, `registrado_em` and nested `aula` and `assistido` objects. The class also includes volunteer data. Lookup has no pagination and returns `[]` when no records match, including for a nonexistent class ID.
+
+Use the attendance record's `id` for individual corrections. Only submitted fields are changed:
+
+```json
+{
+  "presente": true,
+  "observacao": "Attendance confirmed after the class started."
+}
+```
+
+There is no attendance deletion endpoint. Database foreign keys enforce the class and student links; the batch service does not check their existence or active status beforehand.
+
 ### Behavior and validation
 
 | Situation | Current behavior |
@@ -662,6 +753,9 @@ Responses also include `id`, `criado_em`, `atualizado_em` and a nested `voluntar
 | `PATCH` | Updates only submitted fields; students and volunteers accept changes to `ativo` |
 | Student and volunteer `DELETE` | Sets `ativo=false`, preserves the record and returns `204` with no body |
 | Class `DELETE` | Permanently removes the record and returns `204` with no body |
+| Batch attendance | `200` with all attendance records for the class, including those not submitted in the batch |
+| Class lookup with no attendance records | `200` with an empty list |
+| Update of a missing attendance record | `404` |
 
 Explicit duplicate checks occur during registration. Update services do not repeat these checks or translate uniqueness conflicts into a specific HTTP response. Current routes also do not set explicit validation bounds for `skip` and `limit`.
 

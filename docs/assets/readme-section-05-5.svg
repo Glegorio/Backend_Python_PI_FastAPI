@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="126" viewBox="0 0 1200 126" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">05.5 / Respostas e regras de operação</title>
+  <desc id="desc">Faixa editorial com a identidade visual do projeto Valentes de Davi.</desc>
+  <defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#102C25" stroke-opacity=".045"/></pattern></defs>
+  <rect width="1200" height="126" rx="10" fill="#F2EEDF"/>
+  <rect width="1200" height="126" rx="10" fill="url(#grid)"/>
+  <path d="M32 26h5v15h-5z" fill="#385E45"/>
+  <text x="49" y="38" fill="#385E45" font-family="'Courier New', monospace" font-size="12" letter-spacing="2">REFERENCIA / API</text>
+  <path d="M32 52h1136" stroke="#102C25" stroke-opacity=".2"/>
+  <text x="32" y="94" fill="#385E45" font-family="'Courier New', monospace" font-size="23">05.5</text>
+  <text x="132" y="96" fill="#102C25" font-family="Georgia, 'Times New Roman', serif" font-size="34" letter-spacing="-.7">Respostas e regras de operação</text>
+  <g stroke="#385E45" stroke-opacity=".35" stroke-width="1.2">
+    <path d="M1030 68h138v42h-138zM1099 68v42"/>
+    <circle cx="1099" cy="89.0" r="15"/>
+  </g>
+  <circle cx="1099" cy="89.0" r="2.5" fill="#385E45"/>
+</svg>
